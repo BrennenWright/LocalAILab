@@ -27,4 +27,40 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - k8s [https://github.com/kubernetes/kubernetes]
 - n8n [https://github.com/n8n-io/n8n]
 - open webui [https://github.com/open-webui/open-webui]
-- 
+- Qdrant
+- PostgreSQL
+
+  
+## Installation
+
+### Cloning the Repository
+
+```bash
+git clone https://github.com/BrennenWright/LocalAILab.git
+cd LocalAILab
+```
+
+### Running n8n using Docker Compose
+
+#### For Nvidia GPU users
+
+```
+git clone https://github.com/BrennenWright/LocalAILab.git
+cd LocalAILab
+kubectl apply -k ./manifest/gpu/
+```
+
+> [!NOTE]
+> If you have not used your Nvidia GPU with Docker before, please follow the
+> [Ollama Docker instructions](https://github.com/ollama/ollama/blob/main/docs/docker.md).
+
+
+## Demonstration
+
+#### Tax rules chat
+
+#### AI Hallucination and Malicious Prompts
+
+#### TCG Card Identification
+
+#### Chat With Files
