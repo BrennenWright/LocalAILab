@@ -17,11 +17,14 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 ### Lab Components
 
 #### Keysight
-	Keysight CyPerf - Generates synthetic traffic from external or internal clients to an internal endpoint 
-	Keysight CloudLens - Sidecar and Deamonset for Precryption and traffic AI inspection
-	Keysight AI Model Detection Tool
-	Keysight Eggplant - AI Engine enabled User Experience test framework
-	Keysight BPS-VE - Client SIM if possible to send DANs and test prompt mitigation and inspection
+- Keysight CyPerf - Generates synthetic traffic from external or internal clients to an internal endpoint 
+- Keysight CloudLens - Sidecar and Deamonset for Precryption and traffic AI inspection
+- Keysight AI Model Detection Tool
+- Keysight Eggplant - AI Engine enabled User Experience test framework
+- Keysight BPS-VE - Client SIM if possible to send DANs and test prompt mitigation and inspection
 
 #### OpenSource
-
+- k8s [https://github.com/kubernetes/kubernetes]
+- n8n [https://github.com/n8n-io/n8n]
+- open webui [https://github.com/open-webui/open-webui]
+- 
