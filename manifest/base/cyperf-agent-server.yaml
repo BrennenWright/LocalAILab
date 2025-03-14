@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: cyperf-agent-server-deployment
+    namespace: local-ai-lab
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: cyperf-agent
+            run: cyperf-agent-server
+    template:
+        metadata:
+            labels:
+                app: cyperf-agent
+                run: cyperf-agent-server
+        spec:
+            containers:
+                -   name: cyperf-agent-server
+                    image: public.ecr.aws/keysight/cyperf-agent:latest
+                    env:
+                    -   name: AGENT_CONTROLLER
+                        value: "10.10.4.25"
+                    #   name: AGENT_MANAGEMENT_INTERFACE
+                    #   value: "eth0"
+                    #   name: AGENT_TEST_INTERFACE
+                    #   value: "eth1"                        
+                    -   name: AGENT_TAGS
+                        value: "K8s-Group=CyPerf-Agent-Server,Server"
+                    securityContext:
+                        privileged: false
+                        capabilities:
+                          add: ["NET_ADMIN", "IPC_LOCK", "NET_RAW"]
+                    #readinessProbe:
+                    #   httpGet:
+                    #        path: /CyPerfHTTPHealthCheck
+                    #        port: 80
+                    #   periodSeconds: 5
+                    resources:
+                        limits:
+                            memory: "4Gi"
+                            #cpu: "3.5"
+                            ## skipping requests means limits=requests
+                            ## with 3.5 for 8 core node it should be able to run 2 replicas
+                            ## but experiments needed to see how other pods react for perf configs.
+                        requests:
+                            memory: "2Gi"
+ 
+            nodeSelector:
+                agenttype: client
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cyperf-agent-service
+  namespace: local-ai-lab
+spec:
+  #type: ClusterIP
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+    name: http
+    targetPort: 80
+    nodePort: 30080
+  selector:
+    run: cyperf-agent-server
