@@ -11,7 +11,9 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Complete example applications
 - Implement Kubernetes Logging and reporting for visualization of test impacts
 - Writeup the install guide and demo guides
-
+- Add health checks to the database
+- Add n8n load from backup scripts
+- Add initial n8n builds and load on launch
 
 
 ### Lab Components

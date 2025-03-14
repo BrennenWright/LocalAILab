@@ -1,4 +1,5 @@
 resources:
+  - local-ai-lab-namespace.yaml
   - open-webui.yaml
   - ollama-service.yaml
   - ollama-statefulset.yaml
@@ -6,3 +7,16 @@ resources:
   - webui-service.yaml
   - webui-ingress.yaml
   - webui-pvc.yaml
+  - cyperf-agent-client.yaml
+  - cyperf-agent-server.yaml
+  - n8n-service.yaml
+  - n8n-pvc.yaml
+  - n8n-deployment.yaml
+  - postgres-deployment.yaml
+  - postgres-service.yaml
+  - postgres-configmap.yaml
+  - postgres-pvc.yaml
+  - postgres-secret.yaml
+  - qdrant-configmap.yaml
+  - qdrant-statefulset.yaml
+  - metrics-server.yaml
