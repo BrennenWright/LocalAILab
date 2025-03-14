@@ -29,8 +29,9 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - open webui [https://github.com/open-webui/open-webui]
 - Qdrant
 - PostgreSQL
+- NVIDIA gpu-operator [https://github.com/NVIDIA/gpu-operator]
+- Kubernetes stats [https://github.com/kubernetes-sigs/metrics-server]
 
-  
 ## Installation
 
 ### Cloning the Repository

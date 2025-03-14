@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: open-webui-deployment
-  namespace: open-webui
+  namespace: local-ai-lab
 spec:
   replicas: 1
   selector:
@@ -32,7 +32,45 @@ spec:
         volumeMounts:
         - name: webui-volume
           mountPath: /app/backend/data
+      - name: sidecar
+        image: sec-cloudlens.departmentofdemos.com/sensor
+        args: ["--auto_update","y","--project_key","c853712ca3364efe8bc4fd549b03b4d0","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags","platform=k8s","--ssl_verify no"]
+        volumeMounts:
+        - mountPath: /var/log/cloudlens
+          name: volume1
+        - mountPath: /host
+          name: volume2
+        - mountPath: /lib/modules
+          name: volume3
+        - mountPath: /var/run/docker.sock
+          name: volume4
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            add:
+              - "SYS_MODULE"
+              - "SYS_RESOURCE"
+              - "NET_RAW"
+              - "NET_ADMIN"
+              - "SYS_ADMIN"
+          privileged: true
       volumes:
       - name: webui-volume
         persistentVolumeClaim:
-          claimName: open-webui-pvc          
+          claimName: open-webui-pvc
+      - name: volume1
+        hostPath:
+          path: /var/log
+          type: Directory
+      - name: volume2
+        hostPath:
+          path: /
+          type: Directory
+      - name: volume3
+        hostPath:
+          path: /lib/modules
+          type: Directory
+      - name: volume4
+        hostPath:
+          path: /var/run/containerd/containerd.sock
+          type: Socket
