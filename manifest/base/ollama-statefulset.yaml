@@ -14,6 +14,14 @@ spec:
       labels:
         app: ollama
     spec:
+      initContainers:
+      - name: ollama-initial-pull
+        image: ollama/ollama:latest
+        command: ["/bin/sh", "-c", "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull llama3.2; OLLAMA_HOST=ollama:11434 ollama pull llama3.2-vision:11b"]
+        volumeMounts:
+        - name: ollama-volume
+          mountPath: /root/.ollama
+        restartPolicy: OnFailure
       containers:
       - name: ollama
         image: ollama/ollama:latest
@@ -40,23 +48,3 @@ spec:
       resources:
         requests:
           storage: 30Gi
-
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: init-ollama
-  namespace: local-ai-lab
-  labels:
-    purpose: init-command
-spec:
-  containers:
-  - name: ollama-pull-llama
-    image: ollama/ollama:latest
-    command: ["/bin/sh"]
-    args: ["-c","sleep 3; OLLAMA_HOST=ollama:11434 ollama pull llama3.2; OLLAMA_HOST=ollama:11434 ollama pull llama3.2-vision:11b"]
-    volumeMounts:
-    - name: ollama-volume
-      mountPath: /root/.ollama
-  restartPolicy: OnFailure

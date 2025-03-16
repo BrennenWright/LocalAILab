@@ -22,7 +22,7 @@ spec:
         - containerPort: 6333
         volumeMounts:
         - name: qdrant-volume
-          mountPath: /root/.ollama
+          mountPath: /root/.qdrant
         tty: true
   volumeClaimTemplates:
   - metadata:
