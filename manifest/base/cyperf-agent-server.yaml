@@ -45,9 +45,8 @@ spec:
                             ## but experiments needed to see how other pods react for perf configs.
                         requests:
                             memory: "2Gi"
- 
-            nodeSelector:
-                agenttype: client
+#            nodeSelector:
+#                agenttype: client
 
 ---
 

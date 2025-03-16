@@ -1,4 +1,5 @@
 resources:
+  - nvidia-device-plugin.yaml
   - local-ai-lab-namespace.yaml
   - ollama-service.yaml
   - ollama-statefulset.yaml
@@ -19,3 +20,6 @@ resources:
   - qdrant-configmap.yaml
   - qdrant-statefulset.yaml
   - metrics-server.yaml
+
+generatorOptions:
+ disableNameSuffixHash: true
