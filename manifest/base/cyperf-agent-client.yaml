@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: cyperf-agent-client
-          image: public.ecr.aws/keysight/cyperf-agent:latest
+          image: public.ecr.aws/keysight/cyperf-agent:release6.0_debug
           env:
           - name: AGENT_CONTROLLER
-            value: "10.10.4.25"
+            value: 10.10.4.25
           # name: AGENT_MANAGEMENT_INTERFACE
           # value: "eth0"
           # name: AGENT_TEST_INTERFACE
