@@ -12,6 +12,6 @@ spec:
       port: 5678
       targetPort: 5678
       protocol: TCP
-      nodePort: 35678
+      nodePort: 30678
   selector:
     service: n8n
