@@ -39,5 +39,5 @@ spec:
             requests:
               memory: "2Gi"
 
-      nodeSelector:
-        agenttype: client
+#      nodeSelector:
+#        agenttype: client
