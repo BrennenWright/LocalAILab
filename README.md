@@ -8,7 +8,10 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Built out Helm charts for the lab to replicate the completed lab
 	- get the manifest correct first
 - Complete test examples for CyPerf
-- Deploy: Eggplant, BPS-VE
+- Deploy: 
+	- Eggplant
+	- BPS-VE
+	- VAPPStack
 - Complete example applications
 - Implement Kubernetes Logging and reporting for visualization of test impacts
 - Writeup the install guide and demo guides
@@ -17,6 +20,7 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Add initial n8n builds and load on launch
 - Fix the pod manager stuff as it needs a new default image and the script to be inbeded
 - try moving cyperf to persistant to reduce the stale agent issue
+- Setup autoupdates for the 
 
 ### Lab Components
 
@@ -37,6 +41,8 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Kubernetes stats [https://github.com/kubernetes-sigs/metrics-server]
 
 ## Installation
+
+NOTE THIS IS NOT COMPLETE YET
 
 ### Cloning the Repository
 
