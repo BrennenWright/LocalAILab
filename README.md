@@ -16,6 +16,7 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Add n8n load from backup scripts
 - Add initial n8n builds and load on launch
 - Fix the pod manager stuff as it needs a new default image and the script to be inbeded
+- try moving cyperf to persistant to reduce the stale agent issue
 
 ### Lab Components
 

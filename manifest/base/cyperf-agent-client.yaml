@@ -18,13 +18,13 @@ spec:
           image: public.ecr.aws/keysight/cyperf-agent:release6.0_debug
           env:
           - name: AGENT_CONTROLLER
-            value: 10.10.4.25
+            value: sec-cyperf.departmentofdemos.com
           # name: AGENT_MANAGEMENT_INTERFACE
           # value: "eth0"
           # name: AGENT_TEST_INTERFACE
           # value: "eth1"
           - name: AGENT_TAGS
-            value: "K8s-Group=CyPerf-Agent-Client,Client"
+            value: "K8s-Group=CyPerf-Agent-Client,user=Client"
           securityContext:
             privileged: false
             capabilities:
@@ -38,6 +38,18 @@ spec:
               ## but experiments needed to see how other pods react for perf configs.
             requests:
               memory: "2Gi"
-
+          volumeMounts:
+            - mountPath: /etc/systemd/timesyncd.conf
+              name: timesyncd
+            - mountPath: /etc/localtime
+              subPath: America/New_York
+              name: timezone
+      volumes:
+        - name: timesyncd
+          hostPath:
+            path: /etc/systemd/timesyncd.conf
+        - name: timezone
+          hostPath:
+            path: /usr/share/zoneinfo
 #      nodeSelector:
 #        agenttype: client
