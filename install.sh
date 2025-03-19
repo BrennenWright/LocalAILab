@@ -44,6 +44,7 @@ cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
 EOF
+
 sudo modprobe overlay
 sudo modprobe br_netfilter
 
@@ -93,9 +94,11 @@ kubectl apply -f LocalAILab/manifest/base/local-ai-lab-namespace.yaml
 kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 # Configure CyPerf Prerequisites
-sudo modprobe ip6_tables
-sudo modprobe ip6table_filter
-echo ip_tables > /etc/modules-load.d/ip_tables.conf
+cat <<EOF | sudo tee /etc/modules-load.d/cyperf.conf
+ip6table_filter
+ip6_table
+EOF
+sudo modprobe ip6table_filter && sudo modprobe ip6_table
 
 kubectl apply -f LocalAILab/manifest/base/cyperf-agent-client.yaml
 kubectl apply -f LocalAILab/manifest/base/cyperf-agent-server.yaml
