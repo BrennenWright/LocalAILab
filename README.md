@@ -7,6 +7,7 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 
 - Built out Helm charts for the lab to replicate the completed lab
 	- get the manifest correct first
+- Include the setup script for the supporting helms and k8s node setup
 - Complete test examples for CyPerf
 - Deploy: 
 	- Eggplant
@@ -27,10 +28,12 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 ### Lab Components
 
 #### Keysight
-- Keysight CyPerf - Generates synthetic traffic from external or internal clients to an internal endpoint 
+- Keysight CyPerf - Generates synthetic traffic from external or internal clients to an internal endpoint
 - Keysight CloudLens - Sidecar and Deamonset for Precryption and traffic AI inspection
-- Keysight AI Model Detection Tool
+- Keysight AI Model Detection Tool(APPSTACK)
 - Keysight Eggplant - AI Engine enabled User Experience test framework
+        - Eggplant Functional [https://quay.io/repository/eggplantsoftware/fusion-engine-ubi8]
+        - Eggplant [https://docs.eggplantsoftware.com/dai/dai-container-deploy/]
 - Keysight BPS-VE - Client SIM if possible to send DANs and test prompt mitigation and inspection
 
 #### OpenSource
