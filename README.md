@@ -1,7 +1,7 @@
 # LocalAILab
 A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp; Validation for AI.
 
-![alt text](https://github.com/BrennenWright/LocalAILab/blob/main/AISolutionsClean.png?raw=true)
+![ai solutions diagram](https://github.com/BrennenWright/LocalAILab/blob/main/AISolutionsClean.png?raw=true)
 
 ### TODO
 
@@ -11,16 +11,18 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Deploy: 
 	- Eggplant
 	- BPS-VE
-	- VAPPStack
+	- vAPPStack
 - Complete example applications
 - Implement Kubernetes Logging and reporting for visualization of test impacts
 - Writeup the install guide and demo guides
 - Add health checks to the database
 - Add n8n load from backup scripts
-- Add initial n8n builds and load on launch
+- Add initial n8n workflows and load them in on launch like the docker lab does
 - Fix the pod manager stuff as it needs a new default image and the script to be inbeded
-- try moving cyperf to persistant to reduce the stale agent issue
-- Setup autoupdates for the 
+- Try moving cyperf to persistant to reduce the stale agent issue
+- Setup autoupdates for the Lab SSL Certificates 
+- Include deploy instructions/script for the managers
+
 
 ### Lab Components
 
@@ -42,22 +44,50 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 
 ## Installation
 
-NOTE THIS IS NOT COMPLETE YET
+NOTE THIS IS A WORK IN PROGRESS AND NOT COMPLETE
+
+Deploy a new server instance:
+
+- Ubuntu 22.04 or 24.04
+- 10 	CPU
+- 24GB 	RAM
+- 220GB Storage
+- 8GB+	GPU VRAM(Optional sort of)
+
 
 ### Cloning the Repository
 
 ```bash
+gh auth login
+
 git clone https://github.com/BrennenWright/LocalAILab.git
-cd LocalAILab
+./LocalAILab/install.sh
 ```
 
-### Running n8n using Docker Compose
 
-#### For Nvidia GPU users
+### One Shot Install for Ubuntu 22
 
+```bash
+wget https://raw.githubusercontent.com/BrennenWright/LocalAILab/refs/heads/main/install.sh?token=GHSAT0AAAAAAC6BNVYPLYQXOKREF5VN62RKZ62IJVA
+sudo chmod +x install.sh
+./install.sh
 ```
-git clone https://github.com/BrennenWright/LocalAILab.git
-cd LocalAILab
+
+### For Existing K8S Clusters
+
+```bash
+kubectl apply -k ./manifest/base
+```
+
+> [!NOTE]
+> I need to document the prerequisits to confirm for existing clusters. The  
+> [install.sh](install.sh) includes most of these.
+
+
+
+If you have NVIDIA GPU resources
+
+```bash
 kubectl apply -k ./manifest/gpu/
 ```
 
