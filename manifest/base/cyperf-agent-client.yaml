@@ -15,18 +15,18 @@ spec:
     spec:
       containers:
         - name: cyperf-agent-client
-          image: public.ecr.aws/keysight/cyperf-agent:release6.0_debug
+          image: public.ecr.aws/keysight/cyperf-agent:latest
           env:
           - name: AGENT_CONTROLLER
-            value: sec-cyperf.departmentofdemos.com
-          # name: AGENT_MANAGEMENT_INTERFACE
-          # value: "eth0"
-          # name: AGENT_TEST_INTERFACE
-          # value: "eth1"
+            value: "10.10.4.25"
+          #- name: AGENT_MANAGEMENT_INTERFACE
+          #  value: eth0
+          #- name: AGENT_TEST_INTERFACE
+          #  value: eth0
           - name: AGENT_TAGS
             value: "K8s-Group=CyPerf-Agent-Client,user=Client"
           securityContext:
-            privileged: false
+            privileged: true
             capabilities:
               add: ["NET_ADMIN", "IPC_LOCK", "NET_RAW"]
           resources:

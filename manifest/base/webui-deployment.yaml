@@ -34,7 +34,7 @@ spec:
           mountPath: /app/backend/data
       - name: sidecar
         image: sec-cloudlens.departmentofdemos.com/sensor
-        args: ["--auto_update","y","--project_key","c853712ca3364efe8bc4fd549b03b4d0","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags","platform=k8s","--ssl_verify no"]
+        args: ["--auto_update","y","--project_key","7e4cbe00a12d47d9927b9048758fe2ae","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags","source=Open-WebUI","--ssl_verify no"]
         volumeMounts:
         - mountPath: /var/log/cloudlens
           name: volume1

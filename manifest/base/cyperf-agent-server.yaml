@@ -20,22 +20,24 @@ spec:
           image: public.ecr.aws/keysight/cyperf-agent:latest
           env:
             - name: AGENT_CONTROLLER
-              value: sec-cyperf.departmentofdemos.com
-            # name: AGENT_MANAGEMENT_INTERFACE
-            # value: "eth0"
-            # name: AGENT_TEST_INTERFACE
-            # value: "eth1"                        
+              value: "10.10.4.25"
+            #- name: AGENT_MANAGEMENT_INTERFACE
+            #  value: "eth0"
+            #- name: AGENT_TEST_INTERFACE
+            #  value: "eth0"
             - name: AGENT_TAGS
               value: "K8s-Group=CyPerf-Agent-Server,user=Server"
           securityContext:
-            privileged: false
+            privileged: true
             capabilities:
               add: ["NET_ADMIN", "IPC_LOCK", "NET_RAW"]
-          #readinessProbe:
-          #  httpGet:
-          #    path: /CyPerfHTTPHealthCheck
-          #    port: 80
-          #  periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /CyPerfHTTPHealthCheck
+              port: 80
+            periodSeconds: 5
+          ports:
+          - containerPort: 80
           resources:
             limits:
               memory: "4Gi"
@@ -51,6 +53,30 @@ spec:
             - mountPath: /etc/localtime
               subPath: America/New_York
               name: timezone
+        - name: sidecar
+          image: sec-cloudlens.departmentofdemos.com/sensor
+          args: ["--auto_update","y","--project_key","7e4cbe00a12d47d9927b9048758fe2ae","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags", "source=cyperf-agent","--ssl_verify no"]
+          volumeMounts:
+          - mountPath: /var/log/cloudlens
+            name: volume1
+          - mountPath: /host
+            name: volume2
+          - mountPath: /lib/modules
+            name: volume3
+          - mountPath: /var/run/docker.sock
+            name: volume4
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - "SYS_MODULE"
+                - "SYS_RESOURCE"
+                - "NET_RAW"
+                - "NET_ADMIN"
+                - "SYS_ADMIN"
+                - "CAP_NET_ADMIN"
+                - "CAP_SYS_ADMIN"
+            privileged: true
       volumes:
         - name: timesyncd
           hostPath:
@@ -58,6 +84,23 @@ spec:
         - name: timezone
           hostPath:
             path: /usr/share/zoneinfo
+        - name: volume1
+          hostPath:
+            path: /var/log
+            type: Directory
+        - name: volume2
+          hostPath:
+            path: /
+            type: Directory
+        - name: volume3
+          hostPath:
+            path: /lib/modules
+            type: Directory
+        - name: volume4
+          hostPath:
+            path: /var/run/containerd/containerd.sock
+            type: Socket
+
 #      nodeSelector:
 #        agenttype: server
 
