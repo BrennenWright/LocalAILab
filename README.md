@@ -23,6 +23,7 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Try moving cyperf to persistant to reduce the stale agent issue
 - Setup autoupdates for the Lab SSL Certificates 
 - Include deploy instructions/script for the managers
+- Include the kubernetes dashboard-user token for management in the setup script
 
 
 ### Lab Components
@@ -48,6 +49,15 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 ## Installation
 
 NOTE THIS IS A WORK IN PROGRESS AND NOT COMPLETE
+
+
+### External Tools
+
+	- Deploy Keysight Cloudlens Manager
+	- Deploy Keysight CyPerf Manager
+
+
+### System Requirements
 
 Deploy a new server instance:
 

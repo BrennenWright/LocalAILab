@@ -1,4 +1,7 @@
 resources:
+  - dashboard-deployment.yaml
+  - dashboard-user.yaml
+  - dashboard-clusterrole.yaml
   - nvidia-device-plugin.yaml
   - local-ai-lab-namespace.yaml
   - ollama-service.yaml
