@@ -148,6 +148,50 @@ kubectl get secret dashboard-user -n kubernetes-dashboard -o jsonpath="{.data.to
 ```
 
 
+### CyPerf Integration
+
+CyPerf Client and Server agents are included under: 
+
+- manifest/base/cyperf-agent-client.yaml
+- manifest/base/cyperf-agent-server.yaml
+
+Cyperf containers are pulled from an internet accessible repo. 
+
+modify the AGENT_CONTROLLER setting to your local cyperf manager servers IP address. 
+For Example:
+
+```
+          env:
+          - name: AGENT_CONTROLLER
+            value: "10.10.4.25"
+```
+
+and reaply the manifest:
+```
+kubectl apply -k ./manifest/base/cyperf-agent-client.yaml
+kubectl apply -k ./manifest/base/cyperf-agent-server.yaml
+```
+
+### Cloudlens Sensors 
+
+Cloudlens sensors are currently configured as sidecars under:
+
+- manifest/base/cyperf-agent-server.yaml
+- manifest/base/webui-deployment.yaml
+
+
+modify the image location and your product keys:
+```
+        - name: sidecar
+          image: <YOUR_CLOUDLENS_MANAGER>/sensor
+          args: ["--auto_update","y","--project_key","<YOUR_CL_PORJECT_KEY>","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags", "source=cyperf-agent","--ssl_verify no"]
+```
+
+and reaply the manifest:
+```
+kubectl apply -k ./manifest/base/cyperf-agent-server.yaml
+kubectl apply -k ./manifest/base/webui-deployment.yaml
+```
 
 
 ## Demonstration
