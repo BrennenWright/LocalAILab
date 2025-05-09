@@ -112,7 +112,7 @@ kubectl apply -k ./manifest/base
 >
 > - OpenWebUI - https://<YOUR_K8S_IP>:30000/
 > - K8s Dashboard - https://<YOUR_K8S_IP>:30001/
-> - n8n
+> - n8n -  https://<YOUR_K8S_IP>:30678/
 
 To localy administer the pods and system use kubectl such as:
 
