@@ -67,6 +67,13 @@ Deploy a new server instance:
 - 220GB Storage
 - 8GB+	GPU VRAM(Optional sort of)
 
+### System Deployment
+
+Boot the server to the ISO
+- ensure the drive configuration uses the entire hard disk
+- install OpenSSH Server if SSH is required for administration
+- ignore the additional packages. Especially the MicroK8
+
 
 ### Cloning the Repository
 
@@ -78,7 +85,7 @@ git clone https://github.com/BrennenWright/LocalAILab.git
 ```
 
 
-### One Shot Install for Ubuntu 22
+### SingleNode Scripted Install for Ubuntu 22/24
 
 ```bash
 wget https://raw.githubusercontent.com/BrennenWright/LocalAILab/refs/heads/main/install.sh?token=GHSAT0AAAAAAC6BNVYPLYQXOKREF5VN62RKZ62IJVA
@@ -86,9 +93,12 @@ sudo chmod +x install.sh
 ./install.sh
 ```
 
-### For Existing K8S Clusters
+### Deploy the Services
+Once you have a functional kubernetes cluster do the following to deploy the services
+
 
 ```bash
+cd LocalAILab
 kubectl apply -k ./manifest/base
 ```
 
@@ -96,6 +106,13 @@ kubectl apply -k ./manifest/base
 > I need to document the prerequisits to confirm for existing clusters. The  
 > [install.sh](install.sh) includes most of these.
 
+> [!NOTE]
+> The services manifests include the settings for networks and ports. 
+> I defaulted a number of these to NodePORT meaning they use the servers primary IP and a 30000 port to function
+>
+> - OpenWebUI - https://<YOUR_K8S_IP>:30000/
+> - K8s Dashboard - https://<YOUR_K8S_IP>:30001/
+> - n8n
 
 
 If you have NVIDIA GPU resources
