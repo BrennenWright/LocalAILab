@@ -17,6 +17,7 @@ spec:
       containers:
       - name: qdrant
         image: qdrant/qdrant:latest
+        imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
         ports:
         - containerPort: 6333

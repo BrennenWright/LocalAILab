@@ -17,10 +17,11 @@ spec:
       containers:
       - name: ollama
         image: ollama/ollama:latest
-        lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/sh", "-c", "sleep 3; ollama pull llama3.2; ollama pull llama3.2-vision:11b"]
+        imagePullPolicy: IfNotPresent
+#        lifecycle:
+#            postStart:
+#              exec:
+#                command: ["/bin/sh", "-c", "sleep 3; ollama pull llama3.2; ollama pull llama3.2-vision:11b"]
         ports:
         - containerPort: 11434
         resources:

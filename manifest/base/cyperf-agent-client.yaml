@@ -16,6 +16,7 @@ spec:
       containers:
         - name: cyperf-agent-client
           image: public.ecr.aws/keysight/cyperf-agent:latest
+          imagePullPolicy: IfNotPresent
           env:
           - name: AGENT_CONTROLLER
             value: "10.10.4.25"
