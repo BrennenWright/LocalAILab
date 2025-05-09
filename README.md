@@ -120,7 +120,14 @@ To localy administer the pods and system use kubectl such as:
 kubectl get pods -A 
 ```
 
-To login to and use the K8S Dashboard you will need the user token
+To login to and use the K8S Dashboard you will need the dashboard-user token
+
+Generate a new one with:
+```
+kubectl -n kubernetes-dashboard create token dashboard-user
+```
+
+and read the stored token with:
 ```
 kubectl get secret dashboard-user -n kubernetes-dashboard -o jsonpath="{.data.token}" | base64 -d
 ```
