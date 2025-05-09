@@ -114,6 +114,16 @@ kubectl apply -k ./manifest/base
 > - K8s Dashboard - https://<YOUR_K8S_IP>:30001/
 > - n8n
 
+To localy administer the pods and system use kubectl such as:
+
+```
+kubectl get pods -A 
+```
+
+To login to and use the K8S Dashboard you will need the user token
+```
+kubectl get secret dashboard-user -n kubernetes-dashboard -o jsonpath="{.data.token}" | base64 -d
+```
 
 If you have NVIDIA GPU resources
 
