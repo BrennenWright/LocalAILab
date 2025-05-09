@@ -67,6 +67,13 @@ Deploy a new server instance:
 - 220GB Storage
 - 8GB+	GPU VRAM(Optional sort of)
 
+  > NVIDIA Tesla P4 is a great sub $150 option that fits most PCIex16 servers
+  
+  > NVIDIA Tesla L4 24GB is a great improvement with a similar formfactor but at ~$2,000 instead
+
+
+
+
 ### System Deployment
 
 Boot the server to the ISO
@@ -96,10 +103,15 @@ sudo chmod +x install.sh
 ### Deploy the Services
 Once you have a functional kubernetes cluster do the following to deploy the services
 
-
+Without GPU (CPU mode)
 ```bash
 cd LocalAILab
 kubectl apply -k ./manifest/base
+```
+
+If you have NVIDIA GPU resources
+```bash
+kubectl apply -k ./manifest/gpu/
 ```
 
 > [!NOTE]
@@ -122,6 +134,9 @@ kubectl get pods -A
 
 To login to and use the K8S Dashboard you will need the dashboard-user token
 
+![kube dashboard login screenshot](https://github.com/BrennenWright/LocalAILab/blob/main/kubedashboard.png?raw=true)
+
+
 Generate a new one with:
 ```
 kubectl -n kubernetes-dashboard create token dashboard-user
@@ -132,15 +147,7 @@ and read the stored token with:
 kubectl get secret dashboard-user -n kubernetes-dashboard -o jsonpath="{.data.token}" | base64 -d
 ```
 
-If you have NVIDIA GPU resources
 
-```bash
-kubectl apply -k ./manifest/gpu/
-```
-
-> [!NOTE]
-> If you have not used your Nvidia GPU with Docker before, please follow the
-> [Ollama Docker instructions](https://github.com/ollama/ollama/blob/main/docs/docker.md).
 
 
 ## Demonstration
