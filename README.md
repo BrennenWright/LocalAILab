@@ -25,6 +25,8 @@ A mobile friendly AI lab for testing and demonstrating Keysight Visibility &amp;
 - Include deploy instructions/script for the managers
 - Include the kubernetes dashboard-user token for management in the setup script
 
+- Include the user provided CloudLens Server FQDN/IP in the /etc/containerd/config.toml for insecure tls.
+
 
 ### Lab Components
 
