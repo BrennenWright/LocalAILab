@@ -176,6 +176,27 @@ kubectl apply -k ./manifest/base/cyperf-agent-server.yaml
 
 ### Cloudlens Sensors 
 
+If your Cloudlens Manager is not using a production CA signed certificate you will need to add it to the insecure registry. 
+
+Update the config file to include
+```
+nano /etc/containerd/config.toml
+```
+for example:
+```
+   [plugins."io.containerd.grpc.v1.cri".registry]
+     [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.31.250:5000"]
+          endpoint = ["https://192.168.31.250:5000"]
+      [plugins."io.containerd.grpc.v1.cri".registry.configs]
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."192.168.31.250:5000".tls]
+          insecure_skip_verify = true
+```
+Then restart the container subsytem
+```
+sudo service containerd restart
+```
+
 Cloudlens sensors are currently configured as sidecars under:
 
 - manifest/base/cyperf-agent-server.yaml
