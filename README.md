@@ -186,10 +186,10 @@ for example:
 ```
    [plugins."io.containerd.grpc.v1.cri".registry]
      [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.31.250:5000"]
-          endpoint = ["https://192.168.31.250:5000"]
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.31.250"]
+          endpoint = ["https://192.168.31.250"]
       [plugins."io.containerd.grpc.v1.cri".registry.configs]
-        [plugins."io.containerd.grpc.v1.cri".registry.configs."192.168.31.250:5000".tls]
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."192.168.31.250".tls]
           insecure_skip_verify = true
 ```
 Then restart the container subsytem
@@ -207,7 +207,7 @@ modify the image location and your product keys:
 ```
         - name: sidecar
           image: <YOUR_CLOUDLENS_MANAGER>/sensor
-          args: ["--auto_update","y","--project_key","<YOUR_CL_PORJECT_KEY>","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags", "source=cyperf-agent","--ssl_verify no"]
+          args: ["--auto_update","y","--project_key","<YOUR_CL_PORJECT_KEY>","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags", "source=cyperf-agent","ssl_verify", "no"]
 ```
 
 and reaply the manifest:
