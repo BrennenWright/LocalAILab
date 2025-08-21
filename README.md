@@ -141,7 +141,7 @@ To login to and use the K8S Dashboard you will need the dashboard-user token
 
 Generate a new one with:
 ```
-kubectl -n kubernetes-dashboard create token dashboard-user
+kubectl -n kubernetes-dashboard create token dashboard-user --duration=488h --output yaml
 ```
 
 and read the stored token with:
