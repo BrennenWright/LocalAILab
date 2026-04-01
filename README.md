@@ -97,7 +97,7 @@ git clone https://github.com/BrennenWright/LocalAILab.git
 ### SingleNode Scripted Install for Ubuntu 22/24
 
 ```bash
-wget https://raw.githubusercontent.com/BrennenWright/LocalAILab/refs/heads/main/install.sh?token=GHSAT0AAAAAAC6BNVYPLYQXOKREF5VN62RKZ62IJVA
+wget https://raw.githubusercontent.com/BrennenWright/LocalAILab/refs/heads/main/install.sh
 sudo chmod +x install.sh
 ./install.sh
 ```
