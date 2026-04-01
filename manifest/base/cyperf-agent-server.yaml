@@ -55,7 +55,8 @@ spec:
               subPath: America/New_York
               name: timezone
         - name: sidecar
-          image: sec-cloudlens.departmentofdemos.com/sensor
+          image: public.ecr.aws/keysight/cloudlens-sensor:latest
+          imagePullPolicy: IfNotPresent
           args: ["--auto_update","y","--project_key","7e4cbe00a12d47d9927b9048758fe2ae","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags", "source=cyperf-agent","--ssl_verify","no"]
           volumeMounts:
           - mountPath: /var/log/cloudlens

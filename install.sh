@@ -33,7 +33,9 @@ curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dear
 curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
 sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
-sudo nvidia-ctk runtime configure --runtime=docker
+# Register NVIDIA with containerd after /etc/containerd/config.toml exists (see containerd block below).
+# If Docker is installed and you need GPU in Docker containers, run:
+# sudo nvidia-ctk runtime configure --runtime=docker
 
 # install k8s
 #   sysctl params required by setup, params persist across reboots
@@ -64,19 +66,20 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --
 sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg # allow unprivileged APT programs to read this keyring
 
 # This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.27/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as command-not-found to work correctly
 
-sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl helm
 sudo apt-mark hold kubelet kubeadm kubectl
 
-# install containerd
+# install containerd (Kubernetes CRI)
 sudo apt install -y containerd
-sudo mkdir /etc/containerd
+sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
-sudo service containerd restart
-
+sudo nvidia-ctk runtime configure --runtime=containerd
+sudo systemctl restart containerd
+sudo systemctl restart kubelet || true
 
 # init k8s
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
@@ -93,6 +96,15 @@ kubectl label nodes --all node.kubernetes.io/exclude-from-external-load-balancer
 # Install a Network Plugin
 kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 
+# GPU Operator (device plugin, etc.). Host must have NVIDIA drivers: install them before GPU workloads
+# and verify `nvidia-smi` on this node. driver.enabled=false and toolkit.enabled=false mean the operator
+# does not install drivers or reconfigure containerd; nvidia-ctk for containerd above remains required.
+if ! helm repo list 2>/dev/null | awk 'NR>1 {print $1}' | grep -qx nvidia; then
+  helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+fi
+helm repo update
+helm upgrade --install gpu-operator nvidia/gpu-operator -n gpu-operator --create-namespace --wait \
+  --set driver.enabled=false --set toolkit.enabled=false
 
 # setup local-storage
 kubectl apply -f LocalAILab/manifest/base/local-ai-lab-namespace.yaml

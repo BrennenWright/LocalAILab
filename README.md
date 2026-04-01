@@ -116,6 +116,8 @@ If you have NVIDIA GPU resources
 kubectl apply -k ./manifest/gpu/
 ```
 
+**GPU prerequisites (summary):** Install the NVIDIA driver on the host and confirm `nvidia-smi` before relying on GPU workloads. The [install.sh](install.sh) flow registers the NVIDIA runtime with **containerd** (`nvidia-ctk`), installs **Helm**, and deploys **GPU Operator** with `driver.enabled=false` and `toolkit.enabled=false` (so the operator does not install drivers or reconfigure containerd on top of that). The GPU manifest overlay ships a `RuntimeClass` named `nvidia` and sets `runtimeClassName: nvidia` on Ollama.
+
 > [!NOTE]
 > I need to document the prerequisits to confirm for existing clusters. The  
 > [install.sh](install.sh) includes most of these.
@@ -176,7 +178,9 @@ kubectl apply -k ./manifest/base/cyperf-agent-server.yaml
 
 ### Cloudlens Sensors 
 
-If your Cloudlens Manager is not using a production CA signed certificate you will need to add it to the insecure registry. 
+The sidecar uses the public sensor image `public.ecr.aws/keysight/cloudlens-sensor:latest` with `imagePullPolicy: IfNotPresent`: nodes pull that tag when the image is not already present locally, then keep using the cached image across restarts (aligned with a stable manager deployment; use `Always` or a new tag/digest if you need to force a refresh on every rollout).
+
+If your Cloudlens Manager is not using a production CA signed certificate you will need to add it to the insecure registry when pulling from a **private** registry (not required for the public ECR sensor image).
 
 Update the config file to include
 ```
@@ -203,11 +207,12 @@ Cloudlens sensors are currently configured as sidecars under:
 - manifest/base/webui-deployment.yaml
 
 
-modify the image location and your product keys:
+customize project key and manager URL as needed (image defaults to public ECR `latest`):
 ```
         - name: sidecar
-          image: <YOUR_CLOUDLENS_MANAGER>/sensor
-          args: ["--auto_update","y","--project_key","<YOUR_CL_PORJECT_KEY>","--accept_eula","yes","--server","sec-cloudlens.departmentofdemos.com","--custom_tags", "source=cyperf-agent","ssl_verify", "no"]
+          image: public.ecr.aws/keysight/cloudlens-sensor:latest
+          imagePullPolicy: IfNotPresent
+          args: ["--auto_update","y","--project_key","<YOUR_CL_PROJECT_KEY>","--accept_eula","yes","--server","<YOUR_CLOUDLENS_MANAGER_HOST>","--custom_tags", "source=cyperf-agent","--ssl_verify","no"]
 ```
 
 and reaply the manifest:
