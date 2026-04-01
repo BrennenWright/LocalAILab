@@ -19,13 +19,12 @@ LOCALAILAB_ROOT="${LOCALAILAB_ROOT:-$HOME/LocalAILab}"
 # install github
 sudo apt -y update && sudo apt -y upgrade
 sudo apt -y install git
-sudo apt -y install gh
 
 # login to github
 
 if [ ! -d "$LOCALAILAB_ROOT" ]; then
   echo "Clone the LocalAILab Repo"
-  gh repo clone BrennenWright/LocalAILab "$LOCALAILAB_ROOT"
+  git clone https://github.com/BrennenWright/LocalAILab.git "$LOCALAILAB_ROOT"
 fi
 if [ ! -d "$LOCALAILAB_ROOT/manifest/base" ]; then
   echo "Expected manifests at $LOCALAILAB_ROOT/manifest/base — fix LOCALAILAB_ROOT or clone the repo."
