@@ -54,6 +54,7 @@ spec:
             - mountPath: /etc/localtime
               subPath: America/New_York
               name: timezone
+        # BEGIN-CLOUDLENS-SIDECAR
         - name: sidecar
           image: public.ecr.aws/keysight/cloudlens-sensor:latest
           imagePullPolicy: IfNotPresent
@@ -79,6 +80,7 @@ spec:
                 - "CAP_NET_ADMIN"
                 - "CAP_SYS_ADMIN"
             privileged: true
+        # END-CLOUDLENS-SIDECAR
       volumes:
         - name: timesyncd
           hostPath:
@@ -86,6 +88,7 @@ spec:
         - name: timezone
           hostPath:
             path: /usr/share/zoneinfo
+        # BEGIN-CLOUDLENS-VOLUMES
         - name: volume1
           hostPath:
             path: /var/log
@@ -102,6 +105,7 @@ spec:
           hostPath:
             path: /var/run/containerd/containerd.sock
             type: Socket
+        # END-CLOUDLENS-VOLUMES
 
 #      nodeSelector:
 #        agenttype: server

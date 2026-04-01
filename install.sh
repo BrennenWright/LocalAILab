@@ -2,7 +2,10 @@
 #		- Ubuntu 22.04
 #		- Ubuntu 24.04
 #
-#
+# Optional integrations (prompted): CyPerf agents, CloudLens sidecars.
+# Re-running this script restores integration manifests from git (needs a git
+# clone, not a flat zip), then reapplies your answers so you can enable or
+# disable CyPerf/CloudLens without manual YAML edits.
 #
 # Requirements:
 #   Ubuntu 22.04
@@ -11,22 +14,164 @@
 #   220GB HardDisk Space
 #   8GB VRAM(Optional)
 
-
+LOCALAILAB_ROOT="${LOCALAILAB_ROOT:-$HOME/LocalAILab}"
 
 # install github
 sudo apt -y update && sudo apt -y upgrade
 sudo apt -y install git
 sudo apt -y install gh
 
-
 # login to github
 
-if [ ! -d "$HOME/LocalAILab" ]; then
-  # commands to execute if the directory does not exist
+if [ ! -d "$LOCALAILAB_ROOT" ]; then
   echo "Clone the LocalAILab Repo"
-  gh repo clone BrennenWright/LocalAILab
+  gh repo clone BrennenWright/LocalAILab "$LOCALAILAB_ROOT"
+fi
+if [ ! -d "$LOCALAILAB_ROOT/manifest/base" ]; then
+  echo "Expected manifests at $LOCALAILAB_ROOT/manifest/base — fix LOCALAILAB_ROOT or clone the repo."
+  exit 1
 fi
 
+prompt_cyperf_controller() {
+  echo ""
+  echo "CyPerf Controller IP or hostname (AGENT_CONTROLLER). Press Enter or enter SKIP to skip CyPerf agents:"
+  read -r CYPERF_CONTROLLER_IP
+  CYPERF_CONTROLLER_IP="${CYPERF_CONTROLLER_IP//$'\r'/}"
+  CYPERF_CONTROLLER_IP="${CYPERF_CONTROLLER_IP#"${CYPERF_CONTROLLER_IP%%[![:space:]]*}"}"
+  CYPERF_CONTROLLER_IP="${CYPERF_CONTROLLER_IP%"${CYPERF_CONTROLLER_IP##*[![:space:]]}"}"
+  _ci_lower="$(printf '%s' "$CYPERF_CONTROLLER_IP" | tr '[:upper:]' '[:lower:]')"
+  if [ -z "$CYPERF_CONTROLLER_IP" ] || [ "$_ci_lower" = "skip" ]; then
+    ENABLE_CYPERF=0
+    echo "CyPerf agents: skipped."
+  else
+    ENABLE_CYPERF=1
+    echo "CyPerf agents: enabled; controller=$CYPERF_CONTROLLER_IP"
+  fi
+}
+
+prompt_cloudlens() {
+  echo ""
+  echo "CloudLens Manager IP or hostname. Press Enter or SKIP to skip CloudLens (no sidecars, no registry patch):"
+  read -r CLOUDLENS_MANAGER_IP
+  CLOUDLENS_MANAGER_IP="${CLOUDLENS_MANAGER_IP//$'\r'/}"
+  CLOUDLENS_MANAGER_IP="${CLOUDLENS_MANAGER_IP#"${CLOUDLENS_MANAGER_IP%%[![:space:]]*}"}"
+  CLOUDLENS_MANAGER_IP="${CLOUDLENS_MANAGER_IP%"${CLOUDLENS_MANAGER_IP##*[![:space:]]}"}"
+  _cl_lower="$(printf '%s' "$CLOUDLENS_MANAGER_IP" | tr '[:upper:]' '[:lower:]')"
+  if [ -z "$CLOUDLENS_MANAGER_IP" ] || [ "$_cl_lower" = "skip" ]; then
+    ENABLE_CLOUDLENS=0
+    CLOUDLENS_PROJECT_KEY=""
+    echo "CloudLens: skipped."
+    return 0
+  fi
+  ENABLE_CLOUDLENS=1
+  while true; do
+    echo "CloudLens project key (required, more than 10 characters):"
+    read -r CLOUDLENS_PROJECT_KEY
+    CLOUDLENS_PROJECT_KEY="${CLOUDLENS_PROJECT_KEY//$'\r'/}"
+    CLOUDLENS_PROJECT_KEY="${CLOUDLENS_PROJECT_KEY#"${CLOUDLENS_PROJECT_KEY%%[![:space:]]*}"}"
+    CLOUDLENS_PROJECT_KEY="${CLOUDLENS_PROJECT_KEY%"${CLOUDLENS_PROJECT_KEY##*[![:space:]]}"}"
+    if [ -z "$CLOUDLENS_PROJECT_KEY" ]; then
+      echo "Project key cannot be blank."
+      continue
+    fi
+    if [ "${#CLOUDLENS_PROJECT_KEY}" -le 10 ]; then
+      echo "Project key must be longer than 10 characters."
+      continue
+    fi
+    break
+  done
+  echo "CloudLens: enabled; manager=$CLOUDLENS_MANAGER_IP"
+}
+
+prompt_cyperf_controller
+prompt_cloudlens
+
+restore_integration_manifests_from_git() {
+  if [ -d "$LOCALAILAB_ROOT/.git" ]; then
+    git -C "$LOCALAILAB_ROOT" checkout HEAD -- \
+      manifest/base/kustomization.yaml \
+      manifest/base/cyperf-agent-client.yaml \
+      manifest/base/cyperf-agent-server.yaml \
+      manifest/base/webui-deployment.yaml 2>/dev/null || true
+  fi
+}
+
+patch_kustomization_cyperf() {
+  local k="$LOCALAILAB_ROOT/manifest/base/kustomization.yaml"
+  if [ "$ENABLE_CYPERF" -ne 1 ]; then
+    sed -i '/^[[:space:]]*-[[:space:]]*cyperf-agent-client\.yaml[[:space:]]*$/d; /^[[:space:]]*-[[:space:]]*cyperf-agent-server\.yaml[[:space:]]*$/d' "$k"
+  fi
+}
+
+patch_containerd_cloudlens_registry() {
+  local host="$1"
+  local cf="/etc/containerd/config.toml"
+  if [ ! -f "$cf" ]; then
+    return 0
+  fi
+  sudo sed -i '/# LocalAILAB CloudLens registry BEGIN/,/# LocalAILAB CloudLens registry END/d' "$cf"
+  if [ -z "$host" ]; then
+    return 0
+  fi
+  tmp_block="$(mktemp)"
+  {
+    echo ""
+    echo "# LocalAILAB CloudLens registry BEGIN"
+    echo "[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors.\"$host\"]"
+    echo "  endpoint = [\"https://$host\"]"
+    echo ""
+    echo "[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"$host\".tls]"
+    echo "  insecure_skip_verify = true"
+    echo "# LocalAILAB CloudLens registry END"
+  } > "$tmp_block"
+  sudo tee -a "$cf" < "$tmp_block" > /dev/null
+  rm -f "$tmp_block"
+}
+
+patch_agent_controller_ip() {
+  local file="$1"
+  local ip="$2"
+  sed -i "/name: AGENT_CONTROLLER/{n;s|value: \".*\"|value: \"$ip\"|}" "$file"
+}
+
+patch_sidecar_args() {
+  local file="$1"
+  local project_key="$2"
+  local server_host="$3"
+  sed -i "s|--project_key\",\"[^\"]*\"|--project_key\",\"$project_key\"|g" "$file"
+  sed -i "s|--server\",\"[^\"]*\"|--server\",\"$server_host\"|g" "$file"
+}
+
+remove_cloudlens_sidecar() {
+  local file="$1"
+  sed -i '/# BEGIN-CLOUDLENS-SIDECAR/,/# END-CLOUDLENS-SIDECAR/d' "$file"
+  sed -i '/# BEGIN-CLOUDLENS-VOLUMES/,/# END-CLOUDLENS-VOLUMES/d' "$file"
+}
+
+apply_manifest_patches() {
+  local client="$LOCALAILAB_ROOT/manifest/base/cyperf-agent-client.yaml"
+  local server="$LOCALAILAB_ROOT/manifest/base/cyperf-agent-server.yaml"
+  local webui="$LOCALAILAB_ROOT/manifest/base/webui-deployment.yaml"
+
+  if [ "$ENABLE_CYPERF" -eq 1 ]; then
+    patch_agent_controller_ip "$client" "$CYPERF_CONTROLLER_IP"
+    patch_agent_controller_ip "$server" "$CYPERF_CONTROLLER_IP"
+  fi
+
+  if [ "$ENABLE_CLOUDLENS" -eq 1 ]; then
+    patch_sidecar_args "$server" "$CLOUDLENS_PROJECT_KEY" "$CLOUDLENS_MANAGER_IP"
+    patch_sidecar_args "$webui" "$CLOUDLENS_PROJECT_KEY" "$CLOUDLENS_MANAGER_IP"
+  else
+    remove_cloudlens_sidecar "$server"
+    remove_cloudlens_sidecar "$webui"
+  fi
+}
+
+apply_localailab_integration_manifests() {
+  restore_integration_manifests_from_git
+  patch_kustomization_cyperf
+  apply_manifest_patches
+}
 
 # install NVIDIAs containet tools
 curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
@@ -78,6 +223,11 @@ sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
 sudo nvidia-ctk runtime configure --runtime=containerd
+
+if [ "$ENABLE_CLOUDLENS" -eq 1 ]; then
+  patch_containerd_cloudlens_registry "$CLOUDLENS_MANAGER_IP"
+fi
+
 sudo systemctl restart containerd
 sudo systemctl restart kubelet || true
 
@@ -107,7 +257,7 @@ helm upgrade --install gpu-operator nvidia/gpu-operator -n gpu-operator --create
   --set driver.enabled=false --set toolkit.enabled=false
 
 # setup local-storage
-kubectl apply -f LocalAILab/manifest/base/local-ai-lab-namespace.yaml
+kubectl apply -f "$LOCALAILAB_ROOT/manifest/base/local-ai-lab-namespace.yaml"
 kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 # Configure CyPerf Prerequisites
@@ -117,5 +267,9 @@ ip6_table
 EOF
 sudo modprobe ip6table_filter && sudo modprobe ip6_table
 
-kubectl apply -f LocalAILab/manifest/base/cyperf-agent-client.yaml
-kubectl apply -f LocalAILab/manifest/base/cyperf-agent-server.yaml
+apply_localailab_integration_manifests
+
+if [ "$ENABLE_CYPERF" -eq 1 ]; then
+  kubectl apply -f "$LOCALAILAB_ROOT/manifest/base/cyperf-agent-client.yaml"
+  kubectl apply -f "$LOCALAILAB_ROOT/manifest/base/cyperf-agent-server.yaml"
+fi

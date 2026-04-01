@@ -32,6 +32,7 @@ spec:
         volumeMounts:
         - name: webui-volume
           mountPath: /app/backend/data
+      # BEGIN-CLOUDLENS-SIDECAR
       - name: sidecar
         image: public.ecr.aws/keysight/cloudlens-sensor:latest
         imagePullPolicy: IfNotPresent
@@ -55,10 +56,12 @@ spec:
               - "NET_ADMIN"
               - "SYS_ADMIN"
           privileged: true
+      # END-CLOUDLENS-SIDECAR
       volumes:
       - name: webui-volume
         persistentVolumeClaim:
           claimName: open-webui-pvc
+      # BEGIN-CLOUDLENS-VOLUMES
       - name: volume1
         hostPath:
           path: /var/log
@@ -75,3 +78,4 @@ spec:
         hostPath:
           path: /var/run/containerd/containerd.sock
           type: Socket
+      # END-CLOUDLENS-VOLUMES
